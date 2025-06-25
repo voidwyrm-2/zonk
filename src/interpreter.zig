@@ -63,7 +63,7 @@ fn getPathBase(allocator: Allocator, str: []const u8) !String {
 
     var base = try allocator.alloc(u8, str.len - i);
 
-    for (i..str.len, 0..) |j, k| {
+    for (i + 1..str.len, 0..) |j, k| {
         base[k] = str[j];
     }
 
