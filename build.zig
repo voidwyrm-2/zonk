@@ -47,9 +47,7 @@ fn addImports(b: *std.Build, root: *std.Build.Module, args: anytype) void {
 pub fn build(b: *std.Build) !void {
     const native_only = b.option(bool, "native-only", "Only build the native target of the current OS/arch") orelse false;
 
-    const optimize = b.standardOptimizeOption(.{
-        .preferred_optimize_mode = .ReleaseSafe,
-    });
+    const optimize = std.builtin.OptimizeMode.ReleaseSafe;
 
     var output_file = try std.fs.cwd().createFile("src" ++ sep ++ "version.zig", .{});
     defer output_file.close();
