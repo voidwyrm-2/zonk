@@ -316,14 +316,13 @@ pub const Interpreter = struct {
                     var path = try appendSystemLibExt(self.allocator, cur.lit.str);
                     defer path.deinit();
 
-                    var base = try getPathBase(self.allocator, cur.lit.str);
-                    defer base.deinit();
+                    const base = try getPathBase(self.allocator, cur.lit.str);
+                    try self.strings.append(base);
 
                     const lib = DynLib.open(path.str) catch |dynerr| {
-                        _ = switch (dynerr) {
-                            error.FileNotFound => try self.errt(cur, "cannot find module at path {s}", .{path.str}),
-                            else => null,
-                        };
+                        if (dynerr == error.FileNotFound) {
+                            try self.errt(cur, "cannot find module at path {s}", .{path.str});
+                        }
 
                         return dynerr;
                     };

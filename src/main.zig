@@ -118,7 +118,7 @@ pub fn main() !u8 {
     if (res.args.mod != 0) {
         var iter = interpreter.modules.iterator();
 
-        try stdout.print("loaded modules:", .{});
+        try stdout.print("loaded modules:\n", .{});
 
         while (iter.next()) |m| {
             try stdout.print(" '{s}'\n", .{m.key_ptr.*});
