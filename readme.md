@@ -1,6 +1,6 @@
 # Zonk
 
-Zonk is a superset of [BrainF](https://en.wikipedia.org/wiki/Brainfuck), made to be a easier compilation target than vanilla BrainF.
+Zonk is a superset of [BrainF](https://en.wikipedia.org/wiki/Brainfuck), made to be an easier compilation target than vanilla BrainF.
 
 ## Operations
 
