@@ -28,7 +28,9 @@ fn addImports(b: *std.Build, root: *std.Build.Module, args: anytype) void {
 pub fn build(b: *std.Build) !void {
     const native_only = b.option(bool, "native-only", "Only build the native target of the current OS/arch") orelse false;
 
-    const optimize = b.standardOptimizeOption(.{});
+    const optimize = b.standardOptimizeOption(.{
+        .preferred_optimize_mode = .ReleaseSafe,
+    });
 
     if (native_only) {
         const resolved_target = b.resolveTargetQuery(.{});
