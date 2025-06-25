@@ -69,12 +69,12 @@ pub fn build(b: *std.Build) !void {
     } else {
         const test_step = b.step("test", "Run unit tests");
 
-        const package_step = b.step("pack", "Package the executables into zip files");
+        const package = b.step("pack", "Package the executables into zip files");
 
-        const rm_pkg_step = b.addSystemCommand(&.{ "rm", "-rf", pkg_folder });
+        const rm_pkg = b.addSystemCommand(&.{ "rm", "-rf", pkg_folder });
 
-        const mkdir_pkg_step = b.addSystemCommand(&.{ "mkdir", pkg_folder });
-        mkdir_pkg_step.step.dependOn(&rm_pkg_step.step);
+        const mkdir_pkg = b.addSystemCommand(&.{ "mkdir", pkg_folder });
+        mkdir_pkg.step.dependOn(&rm_pkg.step);
 
         for (targets) |t| {
             const resolved_target = b.resolveTargetQuery(t);
@@ -100,17 +100,28 @@ pub fn build(b: *std.Build) !void {
 
             b.getInstallStep().dependOn(&target_output.step);
 
-            const zip_step = b.addSystemCommand(&.{
+            const move_output = b.addSystemCommand(&.{
+                "mv",
+                try std.fmt.allocPrint(b.allocator, "zig-out/{s}", .{target_triple}),
+                ".",
+            });
+
+            move_output.step.dependOn(b.getInstallStep());
+
+            const zip = b.addSystemCommand(&.{
                 "zip",
                 "-r",
                 try std.fmt.allocPrint(b.allocator, "{s}/{s}.zip", .{ pkg_folder, target_triple }),
-                try std.fmt.allocPrint(b.allocator, "zig-out/{s}", .{target_triple}),
+                target_triple,
             });
 
-            zip_step.step.dependOn(&mkdir_pkg_step.step);
-            zip_step.step.dependOn(b.getInstallStep());
+            zip.step.dependOn(&mkdir_pkg.step);
+            zip.step.dependOn(&move_output.step);
 
-            package_step.dependOn(&zip_step.step);
+            const rm_exe = b.addSystemCommand(&.{ "rm", "-rf", target_triple });
+            rm_exe.step.dependOn(&zip.step);
+
+            package.dependOn(&rm_exe.step);
 
             if (t.os_tag == builtin.os.tag and t.cpu_arch == builtin.cpu.arch) {
                 const tests = b.createModule(.{
