@@ -70,7 +70,12 @@ fn getPathBase(allocator: Allocator, str: []const u8) !String {
     return String.init(allocator, base);
 }
 
-const system_lib_ext = if (native_os == .windows) ".dll" else ".so";
+const system_lib_ext = switch (native_os) {
+    .windows => ".dll",
+    .macos => ".dylib",
+    .wasi, .emscripten => ".wasm",
+    else => ".so",
+};
 
 fn appendSystemLibExt(allocator: Allocator, path: []const u8) !String {
     var new_str = try allocator.alloc(u8, path.len + system_lib_ext.len);
