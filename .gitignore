@@ -1,0 +1,15 @@
+# Compilation and caching outputs
+__pycache__/
+bin/
+obj/
+zig-out/
+.zig-cache/
+build/
+*.so
+*.dll
+*.a
+*.lib
+*.o
+
+# MacOS
+.DS_Store
