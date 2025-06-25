@@ -61,7 +61,7 @@ fn getPathBase(allocator: Allocator, str: []const u8) !String {
             break;
     }
 
-    var base = try allocator.alloc(u8, str.len - i);
+    var base = try allocator.alloc(u8, str.len - i - 1);
 
     for (i + 1..str.len, 0..) |j, k| {
         base[k] = str[j];
@@ -237,7 +237,7 @@ pub const Interpreter = struct {
 
     fn wasi_unsupported_dynlib(self: *Interpreter, cur: Token) !void {
         if (is_wasm) {
-            try self.errt(cur, "wasi does not support dynamic loading", .{});
+            try self.errt(cur, "wasi/emscripten does not support dynamic loading", .{});
             return InterpreterError.UnsupportedOSForOperation;
         }
     }
