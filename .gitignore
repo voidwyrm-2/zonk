@@ -4,6 +4,7 @@ bin/
 obj/
 zig-out/
 .zig-cache/
+pkg/
 build/
 *.so
 *.dll
