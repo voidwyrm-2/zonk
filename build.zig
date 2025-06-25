@@ -1,6 +1,25 @@
 const std = @import("std");
+const sep = std.fs.path.sep_str;
 
 const builtin = @import("builtin");
+
+const DependencyEntry = struct {
+    url: []const u8,
+    hash: []const u8,
+};
+
+// this article is completely lying about the ZON import thing
+// https://renerocks.ai/blog/2025-04-27--version-in-zig/
+const zon: struct {
+    name: enum { zonk },
+    version: []const u8,
+    fingerprint: usize,
+    minimum_zig_version: []const u8,
+    dependencies: struct {
+        clap: DependencyEntry,
+    },
+    paths: [7][]const u8,
+} = @import("build.zig.zon");
 
 const exe_name = "zonk";
 
@@ -32,12 +51,17 @@ pub fn build(b: *std.Build) !void {
         .preferred_optimize_mode = .ReleaseSafe,
     });
 
+    var output_file = try std.fs.cwd().createFile("src" ++ sep ++ "version.zig", .{});
+    defer output_file.close();
+
+    try output_file.writeAll("pub const zonk_version = \"" ++ zon.version ++ "\";\n");
+
     if (native_only) {
         const resolved_target = b.resolveTargetQuery(.{});
 
         const exe = b.addExecutable(.{
             .name = exe_name,
-            .root_source_file = b.path("src/main.zig"),
+            .root_source_file = b.path("src" ++ sep ++ "main.zig"),
             .target = resolved_target,
             .optimize = optimize,
         });
@@ -55,7 +79,7 @@ pub fn build(b: *std.Build) !void {
         b.getInstallStep().dependOn(&target_output.step);
 
         const tests = b.createModule(.{
-            .root_source_file = b.path("src/tests.zig"),
+            .root_source_file = b.path("src" ++ sep ++ "tests.zig"),
             .target = resolved_target,
             .optimize = optimize,
         });
@@ -83,7 +107,7 @@ pub fn build(b: *std.Build) !void {
 
             const exe = b.addExecutable(.{
                 .name = exe_name,
-                .root_source_file = b.path("src/main.zig"),
+                .root_source_file = b.path("src" ++ sep ++ "main.zig"),
                 .target = resolved_target,
                 .optimize = optimize,
             });
@@ -104,7 +128,7 @@ pub fn build(b: *std.Build) !void {
 
             const move_output = b.addSystemCommand(&.{
                 "mv",
-                try std.fmt.allocPrint(b.allocator, "zig-out/{s}", .{target_triple}),
+                try std.fmt.allocPrint(b.allocator, "zig-out" ++ sep ++ "{s}", .{target_triple}),
                 ".",
             });
 
@@ -113,7 +137,7 @@ pub fn build(b: *std.Build) !void {
             const zip = b.addSystemCommand(&.{
                 "zip",
                 "-r",
-                try std.fmt.allocPrint(b.allocator, "{s}/{s}.zip", .{ pkg_folder, target_triple }),
+                try std.fmt.allocPrint(b.allocator, "{s}" ++ sep ++ "{s}.zip", .{ pkg_folder, target_triple }),
                 target_triple,
             });
 
@@ -127,7 +151,7 @@ pub fn build(b: *std.Build) !void {
 
             if (t.os_tag == builtin.os.tag and t.cpu_arch == builtin.cpu.arch) {
                 const tests = b.createModule(.{
-                    .root_source_file = b.path("src/tests.zig"),
+                    .root_source_file = b.path("src" ++ sep ++ "tests.zig"),
                     .target = resolved_target,
                     .optimize = optimize,
                 });

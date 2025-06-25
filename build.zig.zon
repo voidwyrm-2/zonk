@@ -1,7 +1,7 @@
 .{
     .name = .zonk,
 
-    .version = "1.0.4",
+    .version = "1.0.5",
 
     .fingerprint = 0x4753ed00061b904e, // Changing this has security and trust implications.
 
@@ -20,5 +20,7 @@
         "src",
         "LICENSE",
         "readme.md",
+        "ffi",
+        "examples",
     },
 }
