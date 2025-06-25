@@ -12,12 +12,14 @@ const is_wasm = native_os == .wasi or native_os == .emscripten;
 const DynLib =
     if (is_wasm)
         struct {
-            pub fn open(path: []const u8) !void {
+            pub fn open(path: []const u8) !DynLib {
                 _ = path;
+                return .{};
             }
             pub fn lookup(self: *@This(), comptime T: type, name: [:0]const u8) ?T {
                 _ = self;
                 _ = name;
+                return null;
             }
             pub fn close(self: *@This()) void {
                 _ = self;

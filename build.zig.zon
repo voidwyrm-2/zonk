@@ -1,7 +1,7 @@
 .{
     .name = .zonk,
 
-    .version = "1.0.2",
+    .version = "1.0.3",
 
     .fingerprint = 0x4753ed00061b904e, // Changing this has security and trust implications.
 
